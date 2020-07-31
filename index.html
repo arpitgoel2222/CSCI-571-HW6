@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>HW6</title>
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <!-- Load d3-cloud -->
+    <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/d3.layout.cloud.js"></script>
+
+    <!-- Create a div where the graph will take place -->
+    <style>
+        table{
+            align-content:center;
+        }
+        .space{
+            padding-left:235px;
+            
+        }
+        .cnncard{
+            width:150px;
+            box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
+            border-radius:10px;
+            
+            text-align:center;
+            
+        }
+    .foxcard{
+        width:150px;
+        box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
+        border-radius:10px;
+        margin-left:20px;
+        text-align:center;
+        height:300px;
+    }
+        hr{
+            border: 1px solid red;
+            margin-left:240px;
+            width:750px;
+        }
+    h2{
+        text-align:center;
+        margin-left:150px;
+    }
+        .def{
+        //position:absolute;
+        padding-left:250px;
+        }
+    
+    #titletext{
+     font-size:15px;
+     //margin-left:10px;
+     bottom:1200px;
+    position: relative;
+    height:120px;
+    width: 393px;
+    color:white;
+    //height:20px;
+    padding-left:5px;
+    text-align: center;
+    border: 1px solid black;
+    opacity: 0.5;
+    background-color: #000000;
+    bottom:120px;
+    
+     }
+    
+    #descriptiontext{
+        bottom:2px;
+        font-size:10px;
+        //margin-left:10px;
+        position: relative;
+        width: 390px;
+        color:white;
+        //height:auto;
+        padding-left:5px;
+        text-align: center;
+        border: 1px solid black;
+        opacity: 0.5;
+        background-color: #000000;
+        bottom:55px;
+        
+    }
+
+    #news{
+            width:400px;
+            height:300px;
+        }
+        .btn-group span {
+             background-color:gray;
+              color:white;
+              width: 200px;
+              display: block;
+              text-align:center;
+              padding:16px 32px;
+            }
+        .btn-group .selected{
+            color:black;
+            background-color:white;
+            border:1px solid black;
+            border-bottom-left-radius:4px;
+            border-bottom-right-radius:4px;
+            text-decoration:none;
+        }
+    
+        .btn-group .button{
+        border-top-left-radius:4px;
+        border-top-right-radius:4px;
+        }
+    
+    #card{
+        height:300px;
+        
+        padding-left:120px;
+        
+    }
+    </style>
+    <script type="text/javascript">
+    var jsondoc;
+    var worddoc;
+    var cnndoc;
+    var foxdoc;
+    function parseword(worddoc)
+    {
+        //console.log(worddoc);
+        for(i=0;i<30;i++)
+        {
+            var word= worddoc[i];
+            //console.log(word);
+            var x= (Object.values(word));
+            //console.log(x[0]);
+            wordscloud.push(x[0]);
+        }
+        for(x in wordscloud)
+        {
+            //console.log(words[x]);
+            
+        }
+        //console.log(wordscloud);
+            
+            
+    }
+    
+    var title  = new Array(30);
+    var wordscloud = [];
+    var description  = new Array(30);
+    var urlToImage  = new Array(30);
+    var url  = new Array(30);
+    
+    var cnntitle  = new Array(30);
+    var cnndescription  = new Array(30);
+    var cnnurlToImage  = new Array(30);
+    var cnnurl  = new Array(30);
+    
+    var foxtitle  = new Array(30);
+    var foxdescription  = new Array(30);
+    var foxurlToImage  = new Array(30);
+    var foxurl  = new Array(30);
+    
+    
+    function openJSON(url)
+    {
+        var jsonrequest=new XMLHttpRequest();
+        var wordrequest= new XMLHttpRequest();
+        var cnnrequest=new XMLHttpRequest();
+        var foxrequest=new XMLHttpRequest();
+        jsonrequest.overrideMimeType('application/json');
+        jsonrequest.open("GET",'/top_headlines' ,false);
+        wordrequest.open("GET",'/words',false);
+        cnnrequest.open("GET",'/cnn_top_headlines' ,false);
+        foxrequest.open("GET",'/fox_top_headlines' ,false);
+
+        try
+        {
+            jsonrequest.send();
+            wordrequest.send();
+            cnnrequest.send();
+            foxrequest.send();
+        }
+        catch(error)
+        {
+            window.alert("Invalid JSON File");
+            return 0;
+        }
+        try
+        {
+            jsondoc = JSON.parse(jsonrequest.responseText);
+            worddoc= JSON.parse(wordrequest.responseText);
+            cnndoc = JSON.parse(cnnrequest.responseText);
+            foxdoc= JSON.parse(foxrequest.responseText);
+        }
+        catch(error)
+        {
+            alert("File is Empty");
+        }
+        return jsondoc,worddoc,cnndoc,foxdoc;
+    }
+    jsondoc =openJSON(URL);
+    worddoc=openJSON(URL);
+    cnndoc =openJSON(URL);
+    foxdoc=openJSON(URL);
+    worddoc.onload=parseword(worddoc);
+    jsondoc.onload=parsejson(jsondoc);
+    cnndoc.onload=parsecnn(cnndoc);
+    foxdoc.onload=parsefox(foxdoc);
+    function parsejson(jsondoc)
+    {
+        
+        articledata=jsondoc['articles'];
+        //console.log(articledata.length);
+        for(i=0;i<articledata.length;i++)
+        {
+            article = articledata[i];
+            //console.log(article);
+            articlekeys=Object.keys(article);
+            //console.log(articlekeys);
+            for(j=0;j<articlekeys.length;j++)
+            {
+                k = articlekeys[j];
+                if(k=="title")
+                {
+                    title.push(article[k]);
+                    //console.log(title[k]);
+                }
+                if(k=="description")
+                {
+                    description.push(article[k]);
+                    //console.log(description[k]);
+                    
+                }
+                if(k=="urlToImage")
+                {
+                    urlToImage.push(article[k]);
+                    
+                }
+                if(k=="url")
+                {
+                    url.push(article[k]);
+                    
+                }
+            }for(x in description)
+            {
+                //console.log(description[x]);
+            }
+            
+            
+        }
+    }
+    function parsecnn(cnnndoc)
+    {
+        articledata=cnndoc['articles'];
+        //console.log(articledata.length);
+        for(i=0;i<articledata.length;i++)
+        {
+            article = articledata[i];
+            //console.log(article);
+            articlekeys=Object.keys(article);
+            //console.log(articlekeys);
+            for(j=0;j<articlekeys.length;j++)
+            {
+                k = articlekeys[j];
+                if(k=="title")
+                {
+                    cnntitle.push(article[k]);
+                    //console.log(title[k]);
+                }
+                if(k=="description")
+                {
+                    cnndescription.push(article[k]);
+                    //console.log(description[k]);
+                    
+                }
+                if(k=="urlToImage")
+                {
+                    cnnurlToImage.push(article[k]);
+                    
+                }
+                if(k=="url")
+                {
+                    cnnurl.push(article[k]);
+                    
+                }
+            }for(x in cnnurlToImage)
+            {
+                //console.log(cnnurlToImage[x]);
+            }
+            
+            
+        }
+    }
+    function parsefox(foxdoc)
+    {
+        
+        articledata=foxdoc['articles'];
+        //console.log(articledata.length);
+        for(i=0;i<articledata.length;i++)
+        {
+            article = articledata[i];
+            //console.log(article);
+            articlekeys=Object.keys(article);
+            //console.log(articlekeys);
+            for(j=0;j<articlekeys.length;j++)
+            {
+                k = articlekeys[j];
+                if(k=="title")
+                {
+                    foxtitle.push(article[k]);
+                    //console.log(title[k]);
+                }
+                if(k=="description")
+                {
+                    foxdescription.push(article[k]);
+                    //console.log(description[k]);
+                    
+                }
+                if(k=="urlToImage")
+                {
+                    foxurlToImage.push(article[k]);
+                    
+                }
+                if(k=="url")
+                {
+                    foxurl.push(article[k]);
+                    
+                }
+            }for(x in foxdescription)
+            {
+                //console.log(foxdescription[x]);
+            }
+            
+            
+        }
+    }
+    function myshow()
+    {
+        //console.log(i);
+        for(k in urlToImage)
+        {
+            var linka=urlToImage[k];
+            break;
+        }
+        i=30;
+        //console.log(linka);
+        //document.getElementById("news").style.backgroundImage.objectFit = "cover";
+        document.getElementById("news").style.backgroundImage = "url("+linka+")";
+        document.getElementById("news").style.backgroundSize = "400px 300px ";
+        //console.log();
+        var x= document.getElementById("news");
+        
+        
+        
+        var maindiv= document.getElementById("titletext");
+        
+        maindiv.innerHTML="";
+        var para=document.createElement("p");
+        var x = document.createElement("B");
+        var spanx = document.createElement("span");
+        var spanx2 = document.createElement("span");
+        spanx.style.fontSize="15px";
+        spanx2.style.fontSize="12px";
+        var titlep=document.createTextNode(title[i]);
+        x.appendChild(titlep);
+        var para2=document.createElement("p");
+        var descriptionp=document.createTextNode(description[i]);
+        spanx.appendChild(x)
+        para.appendChild(spanx);
+        spanx2.appendChild(descriptionp);
+        para2.appendChild(spanx2);
+        maindiv.appendChild(para);
+        maindiv.appendChild(para2);
+        
+        
+        
+        x.style.width="300";
+        document.getElementById("setlink").href = url[i];
+        i++;
+        setTimeout(myshow2,2000);
+        
+    }
+    function myshow2()
+    {
+        //console.log(i);
+        var linka=urlToImage[i];
+        //console.log(urlToImage[i]);
+        document.getElementById("news").style.backgroundImage = "url("+linka+")";
+        //console.log(title[i]);
+        //console.log(description[i]);
+        //document.getElementById("titletext").innerHTML=title[i];
+        //document.getElementById("descriptiontext").innerHTML=description[i];
+        var maindiv= document.getElementById("titletext");
+        
+        maindiv.innerHTML="";
+        var para=document.createElement("p");
+        var x = document.createElement("B");
+        var spanx = document.createElement("span");
+        var spanx2 = document.createElement("span");
+        spanx.style.fontSize="15px";
+        spanx2.style.fontSize="12px";
+        var titlep=document.createTextNode(title[i]);
+        x.appendChild(titlep);
+        var para2=document.createElement("p");
+        var descriptionp=document.createTextNode(description[i]);
+        spanx.appendChild(x)
+        para.appendChild(spanx);
+       spanx2.appendChild(descriptionp);
+        para2.appendChild(spanx2);
+        maindiv.appendChild(para);
+        maindiv.appendChild(para2);
+        
+        document.getElementById("setlink").href = url[i];
+        i++;
+        if(i==35)
+        {
+            setTimeout(myshow,4000);
+            i=30;
+        }
+        else{
+            setTimeout(myshow2,4000);
+        }
+    }
+    function showsecond(){
+        var x = document.getElementsByClassName("btn-group");
+        console.log(x);
+ 
+    }
+
+
+    </script>
+</head>
+<body onload="myshow()">
+<div id="firstpartt">
+<table style="align:center; padding-left:150px;" class="firstone">
+    <!--upper part starts -->
+  <tr id="aaaaa" >
+      <!--button part starts -->
+      
+      <td rowspan="3" width:"200px" height="600px" class="btn-group" valign="top"  style="padding-right:30px;padding-left:10px;">
+        <div style="position:fixed;">
+        <span class="button" onclick="showfirst()">Google News</span>
+        <span class="button selected" onclick="showsecond()">Search</span>
+        </div>
+      </td>
+      
+      <!--button part ends -->
+      <!--Google news part starts -->
+      
+    <td height="100px" class="def">
+        
+
+    <a id="setlink">  <div id="news"></div></a>
+    <div id="titletext"></div>
+    
+    </td>
+    <!--Google news part ends -->
+    <!--word cloud part starts -->
+    <td height="100px" class="abc">
+  
+    <div id="my_dataviz">
+            
+    </div>
+    
+    </td>
+    
+
+    <!--word cloud part ends -->
+  </tr>
+  <!--upper part ends -->
+
+  <!--middle part starts -->
+
+  <tr >
+    <td colspan="2">
+    <h2>CNN</h2>
+    <hr class="cnn_line">
+    <table cellspacing="10" class="space">
+    <tr id= "card">
+    <td class="cnncard"></td>
+    <td class="cnncard"></td>
+    <td class="cnncard"></td>
+    <td class="cnncard"></td>
+        
+    </div>
+    </tr></table>
+    </td>
+        
+  </tr>
+  <!--middle part ends -->
+  
+  
+   <!--footer part starts -->
+  
+   <tr>
+    <td colspan="2">
+    <h2>FOX NEWS</h2>
+    <hr class="cnn_line">
+    <table cellspacing="10" class="space">
+    <tr id= "card">
+    <td class="foxcard"></td>
+    <td class="foxcard"></td>
+    <td class="foxcard"></td>
+    <td class="foxcard"></td>
+        
+    </tr></table>
+    </td>
+    
+
+  </tr>
+  <!--footer part ends -->
+</table>
+</div>
+<div class="secondpart">
+    </div>
+<script>
+    
+    cnncard();
+    function cnncard()
+    {
+        var j=0;
+        var i=30;
+        for(k=0;k<4;k++){
+        //var j=0;
+        //var i=30;
+        //for(x in cnnurlToImage)
+        //{
+        //   var linka=cnnurlToImage[x];
+         //   break;
+        //}
+        var linka = cnnurlToImage[i];
+        var x = document.getElementsByClassName("cnncard");
+        //console.log(x);
+        //var y= document.getElementById("card");
+        var anchor= document.createElement("a");
+        anchor.href=cnnurl[i];
+        //console.log(y);
+        //var card1= document.createElement("DIV");
+        //card1.style.width = "20" + "%";
+        //y.appendChild(card1);
+        //console.log(card1);
+        var img = document.createElement('img');
+        img.src =linka;
+        img.height = "100";
+        anchor.appendChild(img);
+        x[j].appendChild(anchor);
+        var xa = document.createElement("B");
+        var para = document.createElement("p");
+        var titlenode = document.createTextNode(cnntitle[i]);
+        xa.appendChild(titlenode);
+        //console.log(titlenode);
+        para.appendChild(xa);
+        //card1.appendChild(titlenode);
+        var para1 = document.createElement("p");
+        var span=document.createElement("span");
+        span.style.fontSize="12px";
+        span.style.padding="8px 8px";
+        
+        var descriptionnode = document.createTextNode(cnndescription[i]);
+        span.appendChild(descriptionnode);
+        para1.append(span);
+        x[j].appendChild(para);
+        x[j].appendChild(para1);
+        //console.log(card1);
+        //x.appendChild(card1);
+        i++;
+        j++;
+        //console.log(i);
+        }
+    }
+
+
+       foxcard();
+       function foxcard()
+       {
+           var j=0;
+           var i=30;
+           for(k=0;k<4;k++){
+           //var j=0;
+           //var i=30;
+           //for(x in cnnurlToImage)
+           //{
+           //   var linka=cnnurlToImage[x];
+            //   break;
+           //}
+           var linka = foxurlToImage[i];
+           var x = document.getElementsByClassName("foxcard");
+           //console.log(x);
+           //var y= document.getElementById("card");
+           var anchor= document.createElement("a");
+           anchor.href=foxurl[i];
+           //console.log(y);
+           //var card1= document.createElement("DIV");
+           //card1.style.width = "20" + "%";
+           //y.appendChild(card1);
+           //console.log(card1);
+           var img = document.createElement('img');
+           img.src =linka;
+           img.height = "100";
+           anchor.appendChild(img);
+           x[j].appendChild(anchor);
+           var para = document.createElement("p");
+           var xa = document.createElement("B");
+           var titlenode = document.createTextNode(foxtitle[i]);
+           //console.log(titlenode);
+           xa.appendChild(titlenode);
+           para.appendChild(xa);
+           //card1.appendChild(titlenode);
+           var para1 = document.createElement("p");
+           var span=document.createElement("span");
+           span.style.fontSize="12px";
+           span.style.padding="8px 8px";
+           var descriptionnode = document.createTextNode(foxdescription[i]);
+           span.appendChild(descriptionnode);
+           para1.append(span);
+           x[j].appendChild(para);
+           x[j].appendChild(para1);
+           //console.log(card1);
+           //x.appendChild(card1);
+           i++;
+           j++;
+           //console.log(i);
+           }
+       }
+    //console.log(d);
+
+    // List of words
+    var margin = {top: 0, right: 10, bottom: 10, left: 10},
+        width = 375 - margin.left - margin.right,
+        height = 375 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+    // Constructs a new cloud layout instance. It run an algorithm to find the position of words that suits your requirements
+    var layout = d3.layout.cloud()
+      .size([width, height])
+      .words(wordscloud.map(function(d) { return {text: d}; }))
+      .padding(10)
+      .fontSize(20)
+      .rotate(function() { return ~~(Math.random() * 2) * 90; })
+      .on("end", draw);
+    layout.start();
+
+    // This function takes the output of 'layout' above and draw the words
+    // Better not to touch it. To change parameters, play with the 'layout' variable above
+    function draw(words) {
+      svg
+        .append("g")
+          .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+          .selectAll("text")
+            .data(words)
+          .enter().append("text")
+          .style("font-size", function(d) { return Math.random()+23 + "px"; })
+            .attr("text-anchor", "middle")
+            .style("fill", "#69b3a2")
+            .attr("transform", function(d) {
+              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+            .text(function(d) { return d.text; });
+    }
+    
+
+
+</script>
+</body>
+</html>
