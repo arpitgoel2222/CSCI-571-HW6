@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>HW6</title>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/d3.layout.cloud.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        form{
+                   margin-left:25%;
+                   /* //margin-top:100px; */
+                   background-color:rgb(245,245,245);
+               }
+           .button{
+               height:15px;
+               width:50px;
+               background-color:white;
+               border-radius:0px;
+           }
+           #colorit{
+               color:red;
+           }
+           form{
+               border: 1px solid;
+               padding:20px;
+               width:635px;
+               height:100px;
+           }
+           .center{
+               text-align:center;
+           }
+           
+        body{
+            padding-left:100px;
+        }
+        
+        .cnncard
+        {
+        width:150px;
+        box-shadow: 1px 1px 1px 0.5px #888888;
+        border-radius:10px;
+        text-align:center;
+        vertical-align:baseline;
+        
+        }
+        
+        table
+        {
+            float:left;
+        }
+        
+        .foxcard
+        {
+        width:150px;
+        box-shadow: 1px 1px 1px 0.5px #888888;
+        border-radius:10px;
+        margin-left:20px;
+        text-align:center;
+        height:300px;
+        vertical-align:baseline;
+        }
+        
+        hr{
+            border: 1px solid gray;
+           }
+       
+       h2{
+           text-align:center;
+        }
+        
+        #titletext
+        {
+            font-size:15px;
+            /* margin-left:10px; */
+            bottom:1200px;
+            position: relative;
+            height:140px;
+            width: 393px;
+            color:white;
+            /* height:20px; */
+            padding-left:5px;
+            text-align: center;
+            border: 1px solid black;
+            opacity: 0.5;
+            background-color: #000000;
+            bottom:140px;
+            cursor:pointer;
+         }
+    
+        #descriptiontext{
+            bottom:2px;
+            font-size:10px;
+            /* margin-left:10px; */
+            position: relative;
+            width: 390px;
+            color:white;
+            /* height:auto; */
+            padding-left:5px;
+            text-align: center;
+            border: 1px solid black;
+            opacity: 0.5;
+            background-color: #000000;
+            bottom:55px;
+        }
+
+        #news{
+            width:400px;
+            height:300px;
+            cursor:pointer;
+        }
+        .btn-group span {
+             background-color:rgb(70,70,70);
+              color:white;
+              width: 110px;
+              display: block;
+              text-align:center;
+              padding:16px 32px;
+            }
+        .btn-group .selected{
+            color:black;
+            background-color:white;
+            border:1px solid black;
+            border-bottom-left-radius:4px;
+            border-bottom-right-radius:4px;
+            border-top-left-radius: 0px;
+            border-top-right-radius: 0px;
+            text-decoration:none;
+        }
+    
+        .btn-group .button{
+        border-top-left-radius:4px;
+        border-top-right-radius:4px;
+        
+        }
+        .btn-group .selected{
+            border-top-left-radius: 0px;
+            border-top-right-radius: 0px;
+        }
+
+        #defaultone{
+            border: 1px solid black;
+        }
+          span.button:hover {
+        background-color: #4CAF50; /* Green */
+        /* color: white; */
+        }
+        form .button:hover{
+            background-color: #4CAF50; /* Green */
+
+        }
+        form .button
+        {
+            background-color: rgb(245,245,245);
+            border:0px;
+        }  */
+        
+    </style>
+    <script type="text/javascript">
+       var jsondoc;
+       var worddoc;
+       var cnndoc;
+       var foxdoc;
+       function parseword(worddoc)
+       {
+           //console.log(worddoc);
+           for(i=0;i<30;i++)
+           {
+               var word= worddoc[i];
+               //console.log(word);
+               var x= word[0];
+               var y= word[1];
+               //console.log(y);
+               //console.log(typeof x);
+               wordscloud.push(y);
+               wordfreq.push(x);
+           }
+           for (x in wordfreq){
+            //console.log(wordfreq[x]);
+            
+           }
+           for(x in wordscloud)
+           {
+               //console.log(wordscloud[x]);
+           }
+            myWords= []
+            for(i=0;i<wordscloud.length;i++)
+            {
+             myWords.push({ 'word':wordscloud[i], 'size': wordfreq[i] })
+            }
+            //console.log(myWords);
+
+           
+       }
+
+       
+       
+       var title  = new Array(30);
+       var wordscloud = [];
+       var wordfreq=[];
+       var description  = new Array(30);
+       var urlToImage  = new Array(30);
+       var url  = new Array(30);
+       
+       var cnntitle  = new Array(30);
+       var cnndescription  = new Array(30);
+       var cnnurlToImage  = new Array(30);
+       var cnnurl  = new Array(30);
+       
+       var foxtitle  = new Array(30);
+       var foxdescription  = new Array(30);
+       var foxurlToImage  = new Array(30);
+       var foxurl  = new Array(30);
+       
+       
+       window.onload = function openJSON(url)
+       {
+           var jsonrequest=new XMLHttpRequest();
+           var wordrequest= new XMLHttpRequest();
+           var cnnrequest=new XMLHttpRequest();
+           var foxrequest=new XMLHttpRequest();
+           jsonrequest.overrideMimeType('application/json');
+           jsonrequest.open("GET",'/top_headlines' ,false);
+           
+           wordrequest.open("GET",'/words',false);
+           cnnrequest.open("GET",'/cnn_top_headlines' ,false);
+           foxrequest.open("GET",'/fox_top_headlines' ,false);
+
+           try
+           {
+               jsonrequest.send();
+               wordrequest.send();
+               cnnrequest.send();
+               foxrequest.send();
+           }
+           catch(error)
+           {
+               window.alert("Invalid JSON File");
+               return 0;
+           }
+           try
+           {
+               jsondoc = JSON.parse(jsonrequest.responseText);
+               //console.log(jsondoc);
+               worddoc= JSON.parse(wordrequest.responseText);
+               //console.log(worddoc);
+               cnndoc = JSON.parse(cnnrequest.responseText);
+               foxdoc= JSON.parse(foxrequest.responseText);
+           }
+           catch(error)
+           {
+               alert("File is Empty");
+           }
+           return jsondoc,worddoc,cnndoc,foxdoc;
+       }
+       jsondoc =openJSON(URL);
+       worddoc=openJSON(URL);
+       cnndoc =openJSON(URL);
+       foxdoc=openJSON(URL);
+       worddoc.onload=parseword(worddoc);
+       jsondoc.onload=parsejson(jsondoc);
+       cnndoc.onload=parsecnn(cnndoc);
+       foxdoc.onload=parsefox(foxdoc);
+       function parsejson(jsondoc)
+       {
+           
+           articledata=jsondoc;
+           //console.log(articledata.length);
+           for(i=0;i<articledata.length;i++)
+           {
+               article = articledata[i];
+               //console.log(article);
+               articlekeys=Object.keys(article);
+               //console.log(articlekeys);
+               for(j=0;j<articlekeys.length;j++)
+               {
+                   k = articlekeys[j];
+                   if(k=="title")
+                   {
+                       title.push(article[k]);
+                       //console.log(title[k]);
+                   }
+                   if(k=="description")
+                   {
+                       description.push(article[k]);
+                       //console.log(description[k]);
+                       
+                   }
+                   if(k=="urlToImage")
+                   {
+                       urlToImage.push(article[k]);
+                       
+                   }
+                   if(k=="url")
+                   {
+                       url.push(article[k]);
+                       
+                   }
+               }
+               
+           }
+       }
+       function parsecnn(cnnndoc)
+       {
+           articledata=cnndoc;
+           //console.log(articledata.length);
+           for(i=0;i<articledata.length;i++)
+           {
+               article = articledata[i];
+               //console.log(article);
+               articlekeys=Object.keys(article);
+               //console.log(articlekeys);
+               for(j=0;j<articlekeys.length;j++)
+               {
+                   k = articlekeys[j];
+                   if(k=="title")
+                   {
+                       cnntitle.push(article[k]);
+                       //console.log(title[k]);
+                   }
+                   if(k=="description")
+                   {
+                       cnndescription.push(article[k]);
+                       //console.log(description[k]);
+                       
+                   }
+                   if(k=="urlToImage")
+                   {
+                       cnnurlToImage.push(article[k]);
+                       
+                   }
+                   if(k=="url")
+                   {
+                       cnnurl.push(article[k]);
+                       
+                   }
+               }
+           }
+       }
+       function parsefox(foxdoc)
+       {
+           
+           articledata=foxdoc;
+           //console.log(articledata.length);
+           for(i=0;i<articledata.length;i++)
+           {
+               article = articledata[i];
+               //console.log(article);
+               articlekeys=Object.keys(article);
+               //console.log(articlekeys);
+               for(j=0;j<articlekeys.length;j++)
+               {
+                   k = articlekeys[j];
+                   if(k=="title")
+                   {
+                       foxtitle.push(article[k]);
+                       //console.log(title[k]);
+                   }
+                   if(k=="description")
+                   {
+                       foxdescription.push(article[k]);
+                       //console.log(description[k]);
+                       
+                   }
+                   if(k=="urlToImage")
+                   {
+                       foxurlToImage.push(article[k]);
+                       
+                   }
+                   if(k=="url")
+                   {
+                       foxurl.push(article[k]);
+                       
+                   }
+               }
+               
+           }
+       }
+       function myshow()
+       {
+           
+           //console.log(i);
+           for(k in urlToImage)
+           {
+               var linka=urlToImage[k];
+               break;
+           }
+           i=30;
+           //console.log(linka);
+           document.getElementById("news").setAttribute("onclick","window.open(\""+url[i]+"\")");
+           document.getElementById("news").style.backgroundImage = "url("+linka+")";
+           document.getElementById("news").style.backgroundSize = "400px 300px ";
+           //console.log();
+           var x= document.getElementById("news");
+           var maindiv= document.getElementById("titletext");
+           maindiv.innerHTML="";
+           var para=document.createElement("p");
+           var x = document.createElement("B");
+           var spanx = document.createElement("span");
+           var spanx2 = document.createElement("span");
+           spanx.style.fontSize="17px";
+           spanx2.style.fontSize="12px";
+           var titlep=document.createTextNode(title[i]);
+           x.appendChild(titlep);
+           var para2=document.createElement("p");
+           var descriptionp=document.createTextNode(description[i]);
+           spanx.appendChild(x)
+           para.appendChild(spanx);
+           spanx2.appendChild(descriptionp);
+           para2.appendChild(spanx2);
+           maindiv.appendChild(para);
+           maindiv.appendChild(para2);
+           x.style.width="300";
+           i++;
+           setTimeout(myshow2,2000);
+           
+       }
+       function myshow2()
+       {
+           //console.log(i);
+           var linka=urlToImage[i];
+           //console.log(urlToImage[i]);
+           document.getElementById("news").setAttribute("onclick","window.open(\""+url[i]+"\")");
+           document.getElementById("news").style.backgroundImage = "url("+linka+")";
+           //console.log(title[i]);
+           //console.log(description[i]);
+           var maindiv= document.getElementById("titletext");
+           maindiv.innerHTML="";
+           var para=document.createElement("p");
+           var x = document.createElement("B");
+           var spanx = document.createElement("span");
+           var spanx2 = document.createElement("span");
+           spanx.style.fontSize="17px";
+           spanx2.style.fontSize="12px";
+           var titlep=document.createTextNode(title[i]);
+           x.appendChild(titlep);
+           var para2=document.createElement("p");
+           var descriptionp=document.createTextNode(description[i]);
+           spanx.appendChild(x)
+           para.appendChild(spanx);
+          spanx2.appendChild(descriptionp);
+           para2.appendChild(spanx2);
+           maindiv.appendChild(para);
+           maindiv.appendChild(para2);
+           i++;
+           if(i==35)
+           {
+               setTimeout(myshow,4000);
+               i=30;
+           }
+           else{
+               setTimeout(myshow2,4000);
+           }
+       }
+
+     function showsecond()
+     {
+         
+         document.getElementById("firstpart").style.display='none';
+         document.getElementById("secondpart").style.display='block';
+         document.documentElement.scrollTop = 0;
+         document.getElementsByClassName("btn-group")[0].style.padding="0px 60px ";
+         
+         
+         display();
+     }
+    function showfirst()
+        {
+            document.getElementById("firstpart").style.display='block';
+            document.getElementById("secondpart").style.display='none';
+            var btnn= document.getElementsByClassName("button selected")
+            document.documentElement.scrollTop = 0;
+            document.getElementsByClassName("btn-group")[0].style.padding="40px 60px ";
+            //console.log(btnn);
+            btnn[0].style.backgroundColor="white";
+            btnn[0].style.color="black";
+            btnn[0].addEventListener("mouseover", mouseOver1);
+            btnn[0].addEventListener("mouseout",mouseOut1);
+            var btnn2= document.getElementById("defaultone");
+            btnn2.style.backgroundColor="rgb(70, 70, 70)";
+            btnn2.style.color="white";
+            document.getElementById("defaultone").addEventListener("mouseover", mouseOver);
+            document.getElementById("defaultone").addEventListener("mouseout", mouseOut);
+            function mouseOver() {
+            document.getElementById("defaultone").style.backgroundColor = "#4CAF50";
+            
+            }
+            function mouseOut() {
+            document.getElementById("defaultone").style.backgroundColor = "rgb(70, 70, 70)";
+            
+            }
+            function mouseOver1() {
+            
+            document.getElementsByClassName("button selected")[0].style.backgroundColor="#4CAF50";
+            }
+            function mouseOut1() {
+            
+            document.getElementsByClassName("button selected")[0].style.backgroundColor="white";
+            }
+            myshow();
+            
+        }
+    
+    
+    </script>
+</head>
+<body onload="myshow()" style="margin-left:30px;">
+ 
+    <table width="300" id="appear">
+        <tr rowspan="3" height="900">
+        <td rowspan="3" width:"200px" height="600px" class="btn-group" valign="top"  style="padding-right:30px;padding-left:60px; padding-top:47px">
+          <div style="position:fixed;">
+          <span class="button" onclick="showfirst()" id="defaultone" >Google News</span>
+          <span class="button selected" onclick="showsecond()">Search</span>
+          </div>
+        </td>
+        </tr>
+    </table>
+    <div id="main-container">
+    <div id="firstpart">
+    <table id="disappear" style="position:absolute; margin-left:300px;">
+        <tr height="300" style="display: flex;">
+        <td style="padding-top:45px;">
+        
+        <a id="setlink">  <div id="news"></div></a>
+        <div id="titletext"></div>
+           
+        
+        </td>
+        <td>
+            
+        <div id="my_dataviz" style="background-color: rgb(245,245,245); margin-left:10px; margin-top:42px "></div>
+            
+        </td>
+        </tr>
+        
+        
+        
+        <tr >
+          <td colspan="2" style="padding-top:40px;">
+          <h2>CNN</h2>
+          <hr class="cnn_line">
+          <table cellspacing="10" class="space">
+          <tr id= "card">
+          <td class="cnncard"></td>
+          <td class="cnncard"></td>
+          <td class="cnncard"></td>
+          <td class="cnncard"></td>
+              
+          
+          </tr></table>
+          </td>
+              
+        </tr>
+        
+          <tr>
+          <td colspan="2">
+          <h2>Fox News</h2>
+          <hr class="cnn_line">
+          <table cellspacing="10" class="space">
+          <tr id= "card">
+          <td class="foxcard"></td>
+          <td class="foxcard"></td>
+          <td class="foxcard"></td>
+          <td class="foxcard"></td>
+              
+          </tr>
+    </table></td></tr></table>
+    </div>
+    <div id="secondpart" style="display: none; width:300px; margin-left:250px;">
+        <script>
+        function display()
+        {
+            var btnn= document.getElementsByClassName("button selected")
+            //console.log(btnn);
+            btnn[0].style.backgroundColor="rgb(70, 70, 70)";
+            btnn[0].style.color="white";
+            btnn[0].addEventListener("mouseover", mouseOver1);
+            btnn[0].addEventListener("mouseout",mouseOut1);
+            var btnn2= document.getElementById("defaultone");
+            btnn2.style.backgroundColor="white";
+            btnn2.style.color="black";
+            //btnn2.style.borderWidth= "thick" ;
+            document.getElementById("defaultone").addEventListener("mouseover", mouseOver);
+            document.getElementById("defaultone").addEventListener("mouseout", mouseOut);
+            function mouseOver() {
+            document.getElementById("defaultone").style.backgroundColor = "#4CAF50";
+            }
+            function mouseOut() {
+            document.getElementById("defaultone").style.backgroundColor = "white";
+            }
+            function mouseOver1() {
+            document.getElementsByClassName("button selected")[0].style.backgroundColor="#4CAF50";
+            }
+            function mouseOut1() {
+            document.getElementsByClassName("button selected")[0].style.backgroundColor="rgb(70, 70, 70)";
+            }
+
+            let today = new Date().toISOString().substr(0, 10);
+            var todate=today;
+            //console.log(today);
+            var date2= new Date()-(1000*60*60*24*7);
+            var date3= new Date(date2);
+            var date= date3.getDate();
+            var month= date3.getMonth()+1;
+            var year= date3.getFullYear();
+            //var date= todaydate3.substr(8,10)-7;
+            // if(date<10 )
+            // {
+            //     date="0"+date;
+            // }
+            //today=today.substr(0,8)+date;
+            var newdate= month+"/"+date+"/"+year;
+            document.querySelector("#theDate").valueAsDate = new Date(newdate);
+            document.querySelector("#theDdate").value = todate;
+        }
+              
+        </script>
+    
+        <form name="search" id="information"  style="margin-top:50px; margin-left: 27%;" onsubmit="myfunction(); return false" >
+        Keyword&nbsp;<span id="colorit">*</span>&nbsp;&nbsp;&nbsp;<input type= "text" size=15 name="keyword"  id="keyword" required autofocus > &nbsp;&nbsp;&nbsp;&nbsp;
+            From&nbsp;<span id="colorit">*</span>&nbsp; &nbsp;&nbsp;<input type= "DATE"  name="From" id="theDate" required / >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        To&nbsp;<span id="colorit">*</span>&nbsp; &nbsp;&nbsp;<input type= "DATE"  name="To" id="theDdate" required />
+          
+        <br>
+        <br>
+        <div class="center">
+        Category&nbsp;&nbsp;<select id="category" name="category" onchange="getcat()">
+                            
+                              <option name="category" value="all">all</option>
+                              <option name="category" value="buisness">business</option>
+                              <option name="category" value="entertainment">entertainment</option>
+                              <option name="category" value="general">general</option>
+                              <option name="category" value="health">health</option>
+                              <option name="category" value="science">science</option>
+                              <option name="category" value="sports">sports</option>
+                              <option name="category" value="technology"> technology</option>
+        </select>
+        
+        &nbsp;&nbsp;
+        Source&nbsp;&nbsp;<select id="source" style="width:130px">
+                            <option>all</option>
+        </select>
+        <script>
+            var alldoc;
+            var allsources=[];
+            var allrequest= new XMLHttpRequest();
+            allrequest.open("GET","/sourcesall?category=all",false);
+            try{
+                allrequest.send();
+            }
+            catch(error)
+            {
+                alert("Invalid file");
+            }
+
+            try{
+                alldoc=JSON.parse(allrequest.responseText);
+            }
+            catch(error)
+            {
+                alert("Empty file");
+            }
+            //console.log(alldoc);
+            var count=0;
+            for(i=0;i<10;i++)
+            {
+               var x= (Object.values(alldoc));
+               var y = x[i];
+               
+               for(key in y)
+               {
+                   allsources.push(y[key]);
+                   count++;
+                   if(count>9)
+                   {
+                       break;
+                   }
+               }
+
+            }
+            //console.log(allsources);
+            populateall();
+            function populateall(){
+                var sourceall= document.getElementById("source");
+                for(i=0;i<allsources.length;i++)
+                {
+                    var option = document.createElement("option");
+                    option.text = allsources[i];
+                    sourceall.add(option);
+                }
+
+
+            }
+    </script>
+        <br>
+        <br>
+        
+        <button class= "button" type="submit" name="search" value="Search" > Search</button>&nbsp;&nbsp;&nbsp;
+        <button class="button" type="button" name="clear" value="Clear" onclick="clearall()">Clear</button>
+        
+        </div>
+    </form>
+    <div id="sec" style="margin-top:40px;  padding-top:20px; width:700px; margin:0px 55px 0px 55px ">
+        
+    </div>
+    <script>
+        var catdoc;
+        var catsources=[];
+        function getcat()
+        {
+            var e = document.getElementById("category");
+            var strUser = e.options[e.selectedIndex].text;
+            //console.log(strUser);
+            var catrequest=new XMLHttpRequest();
+            catrequest.open("GET","/sources?category=" + strUser, false);
+            try{
+                catrequest.send();
+            }
+            catch(error)
+            {
+                window.alert("Try again")
+            }
+            try
+            {
+               catdoc=JSON.parse(catrequest.responseText);
+               //console.log(catdoc);
+            }
+            catch(error)
+            {
+               alert("File is Empty");
+            }
+            //console.log(catdoc);
+            var count=0;
+            
+            catsources=[];
+            
+            for(i=0;i<10;i++)
+            {
+               var x= (Object.values(catdoc));
+               var y = x[i];
+               
+               for(key in y)
+               {
+                   catsources.push(y[key]);
+                   count++;
+                   if(count>9)
+                   {
+                       break;
+                   }
+               }
+
+            }
+            populatesources();
+            for (var x in catsources)
+            {
+                //console.log(catsources[x]);
+            }
+        }
+        function populatesources()
+        {
+            var sourceid= document.getElementById("source");
+            sourceid.options.length=1;
+            //console.log(sourceid);
+            //console.log(catsources.length);
+            for(i=0;i<catsources.length;i++)
+            {
+                var option = document.createElement("option");
+                option.text = catsources[i];
+                sourceid.add(option);
+            }
+        }
+        function clearall(){
+            document.getElementById("sec").innerHTML="";
+            document.getElementById("keyword").value="";
+            let today = new Date().toISOString().substr(0, 10);
+            var todate=today;
+            //console.log(today);
+            var date2= new Date()-(1000*60*60*24*7);
+            var date3= new Date(date2);
+            var date= date3.getDate();
+            var month= date3.getMonth()+1;
+            var year= date3.getFullYear();
+            //var date= todaydate3.substr(8,10)-7;
+            // if(date<10 )
+            // {
+            //     date="0"+date;
+            // }
+            //today=today.substr(0,8)+date;
+            var newdate= month+"/"+date+"/"+year;
+            var x= document.querySelector("#theDate").value="";
+            var y= document.querySelector("#theDdate").value="";
+            //console.log(x);
+            document.querySelector("#theDate").valueAsDate = new Date(newdate);
+            document.querySelector("#theDdate").valueAsDate = new Date(todate);
+            document.getElementById("category").value="all";
+            document.getElementById("source").value="all";
+
+        }
+        function myfunction()
+            {
+                var key= document.getElementById("keyword").value;
+                //console.log(key);
+                if(key=="")
+                {
+                    //console.log("fgg");
+                    //window.alert("Enter keyword");
+                    document.getElementById("keyword").focus();
+                    return false;
+                }
+                var x= document.getElementById("theDate");
+                //console.log(x);
+                var pdate= new Date(x.value);
+                //console.log(pdate);
+                xmonthdouble= x.value.substr(4,4);
+                xmonthfirst= xmonthdouble[1];
+                xmonthsecond= xmonthdouble[2];
+                //console.log(xmonthfirst);
+                //console.log(xmonthsecond);
+                xmonth=xmonthfirst+xmonthsecond;
+                xmonth= parseInt(xmonth);
+                //console.log(xmonth);
+                
+                var y = document.getElementById("theDdate");
+                var cdate= new Date(y.value);
+                ymonthdouble= y.value.substr(4,4);
+                ymonthfirst= ymonthdouble[1];
+                ymonthsecond= ymonthdouble[2];
+                ymonth=ymonthfirst+ymonthsecond;
+                ymonth= parseInt(ymonth);
+                //console.log(ymonth);
+
+                var Difference_In_Time =  new Date(y.value)- new Date(x.value);
+                var ndays = Difference_In_Time / (1000 * 3600 * 24);
+                
+                //console.log(ymonthfirst);
+                //console.log(ymonthsecond);
+                let first=x.value;
+                //console.log(x.value);
+                //console.log(y.value);
+                x_date=x.value.substr(8,10);
+                y_date=y.value.substr(8,10);
+                //x_month= x.value.substr(4,4);
+                x_month=x.value.substr(4,4);
+                y_month=y.value.substr(4,4);
+
+                
+                x_month=x_month.substr(1,2);
+                y_month=y_month.substr(1,2);
+
+                //console.log(x_month.localeCompare(y_month));
+                //console.log(y_month);
+                var regex1=/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/;
+                //console.log(regex1);
+                if(x.value=="" && y.value=="")
+                {
+                    window.alert("Enter Dates");
+                    document.getElementById("theDate").focus();
+                    document.getElementById("theDdate").focus();
+                    return false;
+                }
+                if(x.value=="")
+                {
+                    //window.alert("Enter From Date");
+                    document.getElementById("theDate").focus();
+                    
+                    return false;
+                }
+                if(y.value=="")
+                {
+                    //window.alert("Enter To Date");
+                    document.getElementById("theDdate").focus();
+                    return false;
+                }
+                if(new Date(y.value)- new Date(x.value)<0 )
+                {
+                    if(x_month.localeCompare(y_month)==0)
+                    {
+                    window.alert("Incorrect time");
+                    return false;
+                    }
+
+                }
+                if(ndays<0)
+                {
+                    window.alert("Incorrect time");
+                    return false;
+                }
+                if(!x.value.match(regex1))
+                {
+                    window.alert("Enter correct From");
+                    return false;
+                }
+                if(!y.value.match(regex1))
+                {
+                    window.alert("Enter correct To");
+                    return false;
+                }
+
+                //do similar things for month  and year //developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation
+                //document.getElementById("error_message").innerHTML = x.value;
+                showmainthings();
+
+            }
+        var form_all_doc;
+        var alldoc_title=[],alldoc_description=[], alldoc_author=[],alldoc_publishdate=[],alldoc_image=[],alldoc_url=[],alldoc_sourcename=[];
+        function showmainthings()
+        {
+            //console.log("hello");
+            var form_keyword= document.getElementById("keyword").value;
+            var form_from= document.getElementById("theDate").value;
+            var form_to= document.getElementById("theDdate").value;
+            var aa = document.getElementById("source");
+            var form_source = aa.options[aa.selectedIndex].text;
+            var form_request=new XMLHttpRequest();
+            url = "/geteverything?q=" + form_keyword + "&from=" + form_from + "&to=" + form_to + "&source=" +form_source;
+            //console.log(url);
+            form_request.open("GET",url,false);
+            try
+            {
+                form_request.send();
+            }
+            catch(error)
+            {
+                alert("Invalid JSON request");
+            }
+            try
+            {
+                form_all_doc="";
+                document.getElementById("sec").innerHTML="";
+                //console.log(form_request.responseText);
+                if((form_request.responseText).includes("You are trying to request results too far in the past")){
+                    alert(form_request.responseText);
+                    return false;
+                }else{
+                form_all_doc= JSON.parse(form_request.responseText);
+                //console.log(form_all_doc);
+                //console.log(form_all_doc);
+                //console.log(form_all_doc.length);
+                 if(form_all_doc.length==0)
+                 {
+                    var bf=  document.getElementById("sec");
+                    bf.style.margin="0px 380px ";
+                    bf.innerHTML="No results";
+                    
+                 }
+                 else{
+                    form_all_doc.onload=parseall(form_all_doc);
+                 }}
+            }
+            catch(error)
+            {
+                alert(error);
+            }
+            //console.log(form_all_doc);
+            
+        }
+
+        function parseall(form_all_doc)
+        {
+            alldoc_author=[],alldoc_description=[],alldoc_image=[],alldoc_publishdate=[],alldoc_sourcename=[],alldoc_title=[],alldoc_url=[];
+            //console.log(Object.keys(form_all_doc));
+            
+            
+            for(i=0;i<Object.keys(form_all_doc).length;i++)
+            {
+            var word= form_all_doc[i];
+            //console.log(word);
+            var keys= Object.keys(word);
+            //console.log(keys);
+            
+            for(j=0;j<keys.length;j++)
+            {
+                data= keys[j];
+                //console.log(data);
+                if(data=="author")
+                {
+                    alldoc_author.push(word[data]);
+                    //console.log(word[data]);
+                }
+                if(data=="title")
+                {
+                    alldoc_title.push(word[data]);
+                    //console.log(word[data]);
+                }
+                if(data=="description")
+                {
+                    alldoc_description.push(word[data]);
+                    //console.log(word[data]);
+                }
+                if(data=="urlToImage")
+                {
+                    alldoc_image.push(word[data]);
+                    //console.log(word[data]);
+                }
+                if(data=="url")
+                {
+                    alldoc_url.push(word[data]);
+                    //console.log(word[data]);
+                }
+                if(data=="publishedAt")
+                {
+                    alldoc_publishdate.push(word[data]);
+                    //console.log(word[data]);
+                }
+                if(data=="source")
+                {
+                    //console.log("he");
+                    var sdata= word[data];
+                    //console.log(sdata);
+                    var skeys= Object.keys(sdata);
+                    //console.log(skeys);
+                    for(aa=0;aa<skeys.length;aa++)
+                    {
+                        ssdata= skeys[aa];
+                        //console.log(ssdata);
+                        if(ssdata=="name")
+                        {
+                            alldoc_sourcename.push(sdata[ssdata]);
+                            //console.log(sdata[ssdata]);
+                        }
+                        
+                    }
+                }
+
+            }
+            }
+            showformcard();
+
+        }
+        function showformcard()
+        {
+            sec.innerHTML="";
+            var showformcard_div= document.getElementById("sec");
+            showformcard_div.style.margin="0px 325px 0px 55px";
+            var count=0;
+            var lengthdoc= form_all_doc.length;
+            var btn,btn2;
+            //console.log(lengthdoc);
+                for(i=0;i<lengthdoc;i++)
+                {
+                    //console.log("bye");
+                    var maindiv= document.createElement("div");
+                    maindiv.className = "myformcard";
+                    maindiv.style.width="645px";
+                    //maindiv.style.height="300px";
+                    maindiv.style.cursor="pointer";
+                    maindiv.style.overflow="hidden";
+                    maindiv.style.borderRadius="10px";
+                    maindiv.style.backgroundColor="rgb(245,245,245)";
+                    //maindiv.style.padding="10px 10px 0px";
+                    //maindiv.style.textAlign="center";
+                    maindiv.style.margin="10px 10px 0px 39px";
+                    maindiv.style.border="1px solid #888888";
+                    var formdocdiv= document.createElement("div");
+                    formdocdiv.style.margin="10px 5px";
+                    formdocdiv.style.width="80px";
+                    formdocdiv.style.alignContent="center";
+                    formdocdiv.style.cssFloat="left";
+                    //maindiv.setAttribute("onclick","window.open(\""+alldoc_url[i]+"\")");
+                    var formdocdivimage=document.createElement("img");
+                    formdocdivimage.src=alldoc_image[i];
+                    formdocdivimage.height="70";
+                    formdocdivimage.width="70";
+                    formdocdiv.appendChild(formdocdivimage);
+                    var formdocdiv2= document.createElement("div");
+                    formdocdiv2.style.width="520px";
+                    //formdocdiv2.style.height="100px";
+                    formdocdiv2.style.cssFloat="left";
+                    var para = document.createElement("p");
+                    var xa = document.createElement("B");
+                    var formdocdivtitle= document.createTextNode(alldoc_title[i]);
+                    xa.appendChild(formdocdivtitle);
+                    para.appendChild(xa);
+                    var para1 = document.createElement("p");
+                    para1.className="cutdes";
+                    //para1.style.display="block";
+                    //para1.style.whiteSpace="nowrap";
+                    //para1.style.textOverflow="ellipsis";
+                    //para1.style.overflow="hidden";
+                    //para1.style.wordWrap="break-word";
+                    var span = document.createElement("span");
+                    span.style.fontSize="10px";
+                    //span.style.maxHeight="10px";
+                    //span.style.lineHeight="10px";
+                    //span.style.display="block ruby";
+                    //span.style.textAlign="center";
+                    //span.style.padding="10px 10px";
+                    //console.log(alldoc_description[i]);
+                    var duplicatedesc= alldoc_description[i];
+                     if((alldoc_description[i].split("").length)>=120)
+                     {
+                        word= alldoc_description[i].split("");
+                        //console.log(word);
+                        res1 = alldoc_description[i].substr(0,120);
+                        //console.log(res1);
+                        if(word[120]!=" ")
+                        {
+                            //console.log(word[139]);
+                              for(k=120;k>0;k--)
+                            {
+                                if(word[k]==" ")
+                                 {   //console.log(word[k]);
+                                      
+                                     alldoc_description[i]= alldoc_description[i].substr(0,k)+"...";
+                                        break;
+                                }
+                            }
+    
+  
+                        }
+                        else{
+                            alldoc_description[i]=alldoc_description[i].substr(0,120)+"...";
+                        }
+                         
+                         
+                     }
+                    
+                    var formdocdivdesc= document.createTextNode(alldoc_description[i]);
+                    span.appendChild(formdocdivdesc);
+                    span.style.whiteSpace="no-wrap";
+                    span.style.wordWrap="break-word";
+                    span.style.textOverflow="ellipsis";
+                    //span.style.maxWidth="max-content";
+                    span.style.display="block";
+                     span.style.textOverflow="ellipsis";
+                     span.style.display="hidden";
+                    // span.style.width="200px";
+                    //console.log(window.getComputedStyle(span));
+                    para1.appendChild(span);
+                    hidden_div= document.createElement("div");
+                    hidden_div.className="hid";
+                    hidden_div.style.display="none";
+                    var par1= document.createElement("p");
+                    par1.style.margin="-17px 0px -20px";
+                    var par2= document.createElement("p");
+                    var par3= document.createElement("p");
+                    par3.style.margin="-20px 0px 5px";
+                    var par4= document.createElement("p");
+                    //console.log(duplicatedesc);
+                    var para4= document.createTextNode(duplicatedesc);
+                    par4.appendChild(para4);
+                    par4.style.fontSize="10px";
+                    par4.style.margin="-3px 0px";
+                    //console.log(para4);
+                    var spanx= document.createElement("span");
+                    spanx.style.fontSize="10px";
+                    var spany= document.createElement("span");
+                    spany.style.fontSize="10px";
+                    var spanz= document.createElement("span");
+                    spanz.style.fontSize="10px";
+                    var b1= document.createElement("b");
+                    var b2= document.createElement("b");
+                    var b3= document.createElement("b");
+                    var formdocdivauthortag= document.createTextNode("Author: ");
+                    b1.appendChild(formdocdivauthortag);
+                    var formdocdivsourcetag= document.createTextNode("Source: ");
+                    b2.appendChild(formdocdivsourcetag);
+                    var formdocdivdatetag= document.createTextNode("Date: ");
+                    b3.appendChild(formdocdivdatetag);
+                    var formdocdivsourcename= document.createTextNode(alldoc_sourcename[i]);
+                    //console.log(alldoc_publishdate[i]);
+                    var cd= alldoc_publishdate[i]
+                    var gd=cd.substr(8,8);
+                    gdd2=gd[0];
+                    gdd=gd[0,1];
+                    nd= gdd2+gdd;
+                    //var gm=cd.getMonth()+1;
+                    //var gy=cd.getFullYear();
+                    //console.log(nd);
+                    //console.log(gm);
+                    //console.log(gy);
+
+                    var md= cd.substr(5,5)
+                    var nm= md.substr(0,2);
+                    var ny=cd.substr(0,4);
+                    var fd=nm+"/"+nd+"/"+ny;
+                    //console.log(fd);
+                    
+
+
+                    var formdocdivdate= document.createTextNode(fd);
+                    var formdocdivauthor= document.createTextNode(alldoc_author[i]);
+                    //console.log(alldoc_author);
+                    spanx.appendChild(b1);
+                    spanx.appendChild(formdocdivauthor);
+                    spany.appendChild(b2);
+                    spany.appendChild(formdocdivsourcename);
+                    spanz.appendChild(b3);
+                    spanz.appendChild(formdocdivdate);
+                    par1.appendChild(spanx);
+                    hidden_div.appendChild(par1);
+                    par2.appendChild(spany);
+                    hidden_div.appendChild(par2);
+                    par3.appendChild(spanz);
+                    hidden_div.appendChild(par3);
+                    hidden_div.appendChild(par4);
+                    var hidden_div2= document.createElement("p");
+                    hidden_div2.className="hid2";
+                    hidden_div2.style.fontSize="10px";
+                    hidden_div2.style.display="none";
+                    var anchor= document.createElement("a");
+                    var t = document.createTextNode("See Original Post");
+                    anchor.style.color="blue";
+                    anchor.style.textDecoration="underline";
+                    //anchor.href= alldoc_url[i];
+                    hidden_div2.setAttribute("onclick","window.open(\""+alldoc_url[i]+"\")");
+                    anchor.appendChild(t);
+                    hidden_div2.appendChild(anchor);
+
+                    formdocdiv2.appendChild(para);
+                    hidden_div.style.margin="-17px 0px 0px";
+                    formdocdiv2.appendChild(hidden_div);
+                    para1.style.margin="-8px 0px 0px";
+                    formdocdiv2.appendChild(para1);
+                    //hidden_div2.style.margin="-5px 0px 0px";
+                    formdocdiv2.appendChild(hidden_div2);
+                    maindiv.appendChild(formdocdiv);
+                    maindiv.appendChild(formdocdiv2);
+                    
+                    var ano= document.createElement("div");
+                    ano.style.display="none";
+                    ano.style.width="25px";
+                    ano.style.float="left";
+                    ano.style.margin="2px 0px 0px -5px";
+                    ano.className="dj";
+                    var anchor= document.createElement("a");
+                    var icon= document.createElement("i");
+                    icon.className="material-icons";
+                    var texta=document.createTextNode("close");
+                    //console.log(texta);
+                    icon.appendChild(texta);
+                    anchor.appendChild(icon);
+                    //console.log(icon);
+                    ano.appendChild(anchor);
+                    maindiv.appendChild(ano);
+                    ano.addEventListener('click',disappear);
+                    showformcard_div.appendChild(maindiv);
+                    
+                    //showformcard_div.appendChild(yx);
+                    //console.log(showformcard_div);
+                    if(count==4)
+                    {
+                        break;
+                    }
+                    count++;
+                }
+                
+                if(lengthdoc>5)
+                {
+                    btn= document.createElement('p')
+                    btn.style.width="80px";
+                    btn.style.height="25px";
+                    btn.style.padding="9px 9px 3px 14px";
+                    btn.style.margin="10px 300px";
+                    btn.style.backgroundColor="rgb(245,245,245)";
+                    //btn.style.
+                    btn.innerText="Show More";
+                    btn.style.cursor="pointer";
+                    showformcard_div.appendChild(btn);
+                    btn.addEventListener('mouseover',function() {this.style.backgroundColor="#4CAF50"; this.style.color="white";} );
+                    btn.addEventListener('mouseout',function() {this.style.backgroundColor="rgb(245,245,245)"; this.style.color="black";} );
+                    btn.addEventListener('click',addmore);
+                }
+                function addmore()
+                {
+                showformcard_div.removeChild(this);
+                count=4;
+                for(i=count+1;i<lengthdoc;i++)
+                {
+                    var maindiv= document.createElement("div");
+                    maindiv.className = "myformcard2";
+                    maindiv.style.width="645px";
+                    maindiv.style.cursor="pointer";
+                    //maindiv.style.height="100px";
+                    maindiv.style.overflow="hidden";
+                    maindiv.style.borderRadius="10px";
+                    maindiv.style.backgroundColor="rgb(245,245,245)";
+                    //maindiv.style.padding="10px 10px 0px";
+                    //maindiv.style.textAlign="center";
+                    maindiv.style.margin="10px 10px 0px 39px";
+                    maindiv.style.border="1px solid #888888";
+                    var formdocdiv= document.createElement("div");
+                    formdocdiv.style.margin="10px 5px"
+                    formdocdiv.style.width="80px";
+                    formdocdiv.style.alignContent="center";
+                    formdocdiv.style.cssFloat="left";
+                    //maindiv.setAttribute("onclick","window.open(\""+alldoc_url[i]+"\")");
+                    var formdocdivimage=document.createElement("img");
+                    formdocdivimage.src=alldoc_image[i];
+                    formdocdivimage.height="70";
+                    formdocdivimage.width="70";
+                    formdocdiv.appendChild(formdocdivimage);
+                    var formdocdiv2= document.createElement("div");
+                    formdocdiv2.style.width="520px";
+                    //formdocdiv2.style.height="100px";
+                    formdocdiv2.style.cssFloat="left";
+                    var para = document.createElement("p");
+                    var xa = document.createElement("B");
+                    var formdocdivtitle= document.createTextNode(alldoc_title[i]);
+                    xa.appendChild(formdocdivtitle);
+                    para.appendChild(xa);
+                    var para1 = document.createElement("p");
+                    para1.className="morehidddd";
+                    para1.style.display="block";
+                    var span = document.createElement("span");
+                    span.style.fontSize="10px";
+                    //span.style.maxHeight="10px";
+                    //span.style.lineHeight="10px";
+                    //span.style.display="block ruby";
+                    //span.style.textAlign="center";
+                    //span.style.padding="10px 10px";
+                    var dupdes= alldoc_description[i];
+                    if((alldoc_description[i].split("").length)>=120)
+                     {
+                        word= alldoc_description[i].split("");
+                        //console.log(word);
+                        res1 = alldoc_description[i].substr(0,120);
+                        //console.log(res1);
+                        if(word[120]!=" ")
+                        {
+                            //console.log(word[139]);
+                              for(k=120;k>0;k--)
+                            {
+                                if(word[k]==" ")
+                                 {   //console.log(word[k]);
+                                      
+                                     alldoc_description[i]= alldoc_description[i].substr(0,k)+"...";
+                                        break;
+                                }
+                            }
+    
+  
+                        }
+                        else{
+                            alldoc_description[i]=alldoc_description[i].substr(0,120)+"...";
+                        }
+                         
+                         
+                     }
+                    var formdocdivdesc= document.createTextNode(alldoc_description[i]);
+                    span.appendChild(formdocdivdesc);
+                    //span.style.wordWrap="break-word";
+                    //span.style.textOverflow="ellipsis";
+                    //span.style.display="block ruby";
+                    //span.style.maxWidth="max-content";
+                    span.style.overflow="hidden";
+                    para1.appendChild(span);
+                    //console.log(window.getComputedStyle(span));
+                    morehidden_div= document.createElement("div");
+                    morehidden_div.className="more_hid";
+                    morehidden_div.style.display="none";
+                    var par1= document.createElement("p");
+                    par1.style.margin="-17px 0px -20px";
+                    var par2= document.createElement("p");
+                    var par3= document.createElement("p");
+                    par3.style.margin="-20px 0px 5px";
+                    var par4= document.createElement("p");
+                    //console.log(duplicatedesc);
+                    var para4= document.createTextNode(dupdes);
+                    par4.appendChild(para4);
+                    par4.style.fontSize="10px";
+                    par4.style.margin="-3px 0px";
+                    var spanx= document.createElement("span");
+                    spanx.style.fontSize="10px";
+                    var spany= document.createElement("span");
+                    spany.style.fontSize="10px";
+                    var spanz= document.createElement("span");
+                    spanz.style.fontSize="10px";
+                    var b1= document.createElement("b");
+                    var b2= document.createElement("b");
+                    var b3= document.createElement("b");
+                    var formdocdivauthortag=document.createTextNode("Author: ");
+                    b1.appendChild(formdocdivauthortag);
+                    var formdocdivsourcetag=document.createTextNode("Source: ");
+                    b2.appendChild(formdocdivsourcetag);
+                    var formdocdivdatetag=document.createTextNode("Date: ");
+                    b3.appendChild(formdocdivdatetag);
+                    var formdocdivsourcename= document.createTextNode(alldoc_sourcename[i]);
+                    alldoc_publishdate[i]=alldoc_publishdate[i].substr(0,10);
+                    var cd= alldoc_publishdate[i];
+                    var gd=cd.substr(8,8);
+                    gdd2=gd[0];
+                    gdd=gd[0,1];
+                    nd= gdd2+gdd;
+                    //var gm=cd.getMonth()+1;
+                    //var gy=cd.getFullYear();
+                    //console.log(nd);
+                    //console.log(gm);
+                    //console.log(gy);
+
+                    var md= cd.substr(5,5)
+                    var nm= md.substr(0,2);
+                    var ny=cd.substr(0,4);
+                    var fd=nm+"/"+nd+"/"+ny;
+                    var formdocdivdate= document.createTextNode(fd);
+                    var formdocdivauthor= document.createTextNode(alldoc_author[i]);
+                    spanx.appendChild(b1);
+                    spanx.appendChild(formdocdivauthor);
+                    spany.appendChild(b2);
+                    spany.appendChild(formdocdivsourcename);
+                    spanz.appendChild(b3);
+                    spanz.appendChild(formdocdivdate);
+                    par1.appendChild(spanx);
+                    morehidden_div.appendChild(par1);
+                    // hidden_div.appendChild(formdocdivauthor);
+                    par2.appendChild(spany);
+                    //morehidden_div.appendChild(br1);
+                    morehidden_div.appendChild(par2);
+                    //hidden_div.appendChild(formdocdivsourcename);
+                    //morehidden_div.appendChild(br2);
+                    par3.appendChild(spanz);
+                    morehidden_div.appendChild(par3);
+                    morehidden_div.appendChild(par4);
+                    //hidden_div.appendChild(formdocdivdate);
+                    var morehidden_div2= document.createElement("p");
+                    morehidden_div2.className="mhid2";
+                    morehidden_div2.style.fontSize="10px";
+                    morehidden_div2.style.display="none";
+                    var anchor= document.createElement("a");
+                    var t = document.createTextNode("See Original Post");
+                    anchor.style.color="blue";
+                    anchor.style.textDecoration="underline";
+                    //anchor.href= alldoc_url[i];
+                    morehidden_div2.setAttribute("onclick","window.open(\""+alldoc_url[i]+"\")");
+                    anchor.appendChild(t);
+                    morehidden_div2.appendChild(anchor);
+                    formdocdiv2.appendChild(para);
+                    morehidden_div.style.margin="-17px 0px 0px";
+                    formdocdiv2.appendChild(morehidden_div);
+                    para1.style.margin="-8px 0px 0px";
+                    formdocdiv2.appendChild(para1);
+                    //morehidden_div2.style.margin="-5px 0px 0px";
+                    formdocdiv2.appendChild(morehidden_div2);
+                    maindiv.appendChild(formdocdiv);
+                    maindiv.appendChild(formdocdiv2);
+
+                    var ano= document.createElement("div");
+                    ano.style.display="none";
+                    ano.style.width="25px";
+                    ano.style.float="left";
+                    ano.style.margin="2px 0px 0px -5px";
+                    ano.className="dj";
+                    var anchor= document.createElement("a");
+                    var icon= document.createElement("i");
+                    icon.className="material-icons";
+                    var texta=document.createTextNode("close");
+                    //console.log(texta);
+                    icon.appendChild(texta);
+                    anchor.appendChild(icon);
+                    //console.log(icon);
+                    ano.appendChild(anchor);
+                    maindiv.appendChild(ano);
+                    ano.addEventListener('click',disappear2);
+                    showformcard_div.appendChild(maindiv);
+                    //console.log(count);
+                    //console.log(lengthdoc);
+                    if(count==13 || count== lengthdoc-2)
+                    {
+                        btn2= document.createElement('p')
+                        btn2.style.width="80px";
+                        btn2.style.height="25px";
+                        btn2.style.padding="9px 9px 3px 14px";
+                        btn2.style.margin="10px 300px";
+                        btn2.style.backgroundColor="rgb(245,245,245)";
+                        //btn.style.
+                        btn2.style.cursor="pointer";
+                        btn2.innerText="Show Less";
+                        btn2.addEventListener('mouseover',function() {this.style.backgroundColor="#4CAF50"; this.style.color="white";} );
+                        btn2.addEventListener('mouseout',function() {this.style.backgroundColor="rgb(245,245,245)"; this.style.color="white";} );
+                        showformcard_div.appendChild(btn2);
+                        btn2.addEventListener('click',delete10);
+                        break;
+                    }
+                    count++;
+                }
+                moreblur();
+                }
+                function delete10()
+                {
+                    //console.log("hellll");
+                    var ldiv= document.getElementById("sec");
+                    var lendiv= ldiv.childNodes.length;
+                    console.log(lendiv);
+                    for(kk=lendiv;kk>5;kk--)
+                    {
+                        //console.log(ldiv.lastChild);
+                        ldiv.removeChild(ldiv.lastChild);
+                    }
+                    btn= document.createElement('p')
+                    btn.style.width="80px";
+                    btn.style.height="25px";
+                    btn.style.padding="9px 9px 3px 14px";
+                    btn.style.margin="10px 300px";
+                    btn.style.backgroundColor="rgb(245,245,245)";
+                    //btn.style.
+                    btn.innerText="Show More";
+                    btn.style.cursor="pointer";
+                    btn.addEventListener('mouseover',function() {this.style.backgroundColor="#4CAF50"; this.style.color="white";} );
+                    btn.addEventListener('mouseout',function() {this.style.backgroundColor="rgb(245,245,245)"; this.style.color="black";} );
+                    
+                    showformcard_div.appendChild(btn);
+                    btn.addEventListener('click',addmore);
+
+                }
+
+                var x = document.getElementsByClassName("myformcard");
+                //console.log(x);
+                //console.log(x.length);
+                for(i=0;i<x.length;i++)
+                {
+                    x[i].addEventListener('mouseover',mouseOver);
+                    x[i].addEventListener('mouseout',mouseOut);
+                    x[i].addEventListener('click',change);
+                    
+                }
+                
+                function mouseOver(){
+                    this.style.boxShadow = "10px 10px 10px rgba(0,0,0,0.2) ";
+                }
+                function mouseOut(){
+                    this.style.boxShadow = "none";
+                }
+                ispan=0;
+                flag=true;
+                function change()
+                {
+
+                    if(flag==true){
+                    //console.log("expand");
+                    part1= this.getElementsByClassName("hid");
+                    this.getElementsByClassName("cutdes")[0].style.display="none";
+                    this.getElementsByClassName("hid")[0].style.display="block";
+                    this.getElementsByClassName("hid2")[0].style.display="block";
+                    this.getElementsByClassName("dj")[0].style.display="block";
+                    // flag = false;
+                    } else {
+                        flag = true;
+                    }
+                }
+                function disappear(){
+                
+                   //console.log(this);
+                   var par= this.parentElement;
+                   //console.log(par);
+                   var child1= par.getElementsByClassName("hid")[0];
+                   var child2= par.getElementsByClassName("hid2")[0];
+                   var child3= par.getElementsByClassName("dj")[0];
+                   //console.log(child3);
+                   child1.style.display="none";
+                   child2.style.display="none";
+                   child3.style.display="none";
+                   par.getElementsByClassName("cutdes")[0].style.display="block";
+                   //console.log(child);
+                   //this.getElementsByClassName("hid")[i].style.display="none";
+                   
+                   flag=false;
+                   return;
+                }
+                
+                
+                function moreblur(){
+                    
+                var xxy= document.getElementsByClassName("myformcard2");
+                //console.log(xxy);
+                //console.log(x.length);
+                for(i=0;i<xxy.length;i++)
+                {
+                    xxy[i].addEventListener('mouseover',mouseOver);
+                    xxy[i].addEventListener('mouseout',mouseOut);
+                    xxy[i].addEventListener('click',change2);
+                }
+                function mouseOver(){
+                    this.style.boxShadow = "10px 10px 10px rgba(0,0,0,0.2) ";
+                }
+                function mouseOut(){
+                    this.style.boxShadow = "none";
+                }
+                flag2=true;
+                function change2()
+                {
+
+                    if(flag2==true){
+                    //console.log("expand");
+                    part1= this.getElementsByClassName("mhid2");
+                    console.log(part1);
+                    this.getElementsByClassName("more_hid")[0].style.display="block";
+                    this.getElementsByClassName("mhid2")[0].style.display="block";
+                    this.getElementsByClassName("dj")[0].style.display="block";
+                    this.getElementsByClassName("morehidddd")[0].style.display="none";
+                    // flag = false;
+                    } else {
+                        flag2 = true;
+                    }
+                }
+                }
+                function disappear2(){
+                
+                //console.log(this);
+                var par= this.parentElement;
+                //console.log(par);
+                var child1= par.getElementsByClassName("more_hid")[0];
+                var child2= par.getElementsByClassName("mhid2")[0];
+                var child3= par.getElementsByClassName("dj")[0];
+                //console.log(child3);
+                child1.style.display="none";
+                child2.style.display="none";
+                child3.style.display="none";
+                par.getElementsByClassName("morehidddd")[0].style.display="block";
+                //console.log(child);
+                //this.getElementsByClassName("hid")[i].style.display="none";
+                
+                flag2=false;
+                return;
+             }
+
+
+        }
+    </script>
+   
+    </div>
+    
+    </div>
+    
+</body>
+<script>
+
+    cnncard();
+    function cnncard()
+    {
+        var j=0;
+        var i=30;
+        for(k=0;k<4;k++){
+        var linka = cnnurlToImage[i];
+        var x = document.getElementsByClassName("cnncard");
+        //console.log(linka);
+        if(linka==undefined)
+        {
+            x[j].style.display="none";
+        }
+        x[j].setAttribute("onclick","window.open(\""+cnnurl[i]+"\")");
+        x[j].style.backgroundColor="rgb(245,245,245)";
+        x[j].style.cursor="pointer";
+        //console.log(y);
+        var img = document.createElement('img');
+        img.src =linka;
+        img.height = "100";
+        x[j].appendChild(img);
+        var xa = document.createElement("B");
+        var para = document.createElement("p");
+        var titlenode = document.createTextNode(cnntitle[i]);
+        xa.appendChild(titlenode);
+        //console.log(titlenode);
+        para.appendChild(xa);
+        var para1 = document.createElement("p");
+        para1.style.padding="0px 3px";
+        var span=document.createElement("span");
+        span.style.fontSize="12px";
+        span.style.padding="8px 8px";
+        var descriptionnode = document.createTextNode(cnndescription[i]);
+        span.appendChild(descriptionnode);
+        para1.append(span);
+        x[j].appendChild(para);
+        x[j].appendChild(para1);
+        //console.log(card1);
+        i++;
+        j++;
+        //console.log(i);
+        }
+    }
+
+
+foxcard();
+function foxcard()
+{
+    var j=0;
+    var i=30;
+    for(k=0;k<4;k++){
+    var linka = foxurlToImage[i];
+    var x = document.getElementsByClassName("foxcard");
+    //console.log(linka);
+        if(linka==undefined)
+        {
+            x[j].style.display="none";
+        }
+    //console.log(x);
+    //console.log(y);
+    //console.log(card1);
+    x[j].style.backgroundColor="rgb(245,245,245)";
+    x[j].setAttribute("onclick","window.open(\""+foxurl[i]+"\")");
+    x[j].style.cursor="pointer";
+    var img = document.createElement('img');
+    img.src =linka;
+    img.height = "100";
+    x[j].appendChild(img);
+    var para = document.createElement("p");
+    var xa = document.createElement("B");
+    var titlenode = document.createTextNode(foxtitle[i]);
+    //console.log(titlenode);
+    xa.appendChild(titlenode);
+    para.appendChild(xa);
+    var para1 = document.createElement("p");
+    para1.style.padding="0px 3px";
+    var span=document.createElement("span");
+    span.style.fontSize="12px";
+    span.style.padding="8px 8px";
+    var descriptionnode = document.createTextNode(foxdescription[i]);
+    span.appendChild(descriptionnode);
+    para1.append(span);
+    x[j].appendChild(para);
+    x[j].appendChild(para1);
+    //console.log(card1);
+    i++;
+    j++;
+    //console.log(i);
+    }
+}
+
+    //console.log(myWords.size);
+    // List of words
+    var margin = {top: 10, right: 10, bottom: 10, left: 10},
+        width = 325 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+    var layout = d3.layout.cloud()
+      .size([width, height])
+      .words(myWords.map(function(d) { return {text: d.word, size:d.size}; }))
+      .padding(4)
+      .fontSize(function(d) { return d.size*10+4; })
+      .rotate(function() { return ~~(Math.random() * 2) * 90; })
+      .on("end", draw);
+    layout.start();
+
+    function draw(words) {
+      svg
+        .append("g")
+          .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+          .selectAll("text")
+            .data(words)
+          .enter().append("text")
+          .style("font-size", function(d) { return d.size + "px"; })
+          .style("font-family","Impact")
+            .attr("text-anchor", "middle")
+            .attr("transform", function(d) {
+              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+            .text(function(d) { return d.text; });
+    }
+</script>
+</html>
